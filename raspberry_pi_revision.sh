@@ -24,7 +24,7 @@ function run_rpifinder()
 	
 	# Parse $REVCODE (find substrings, determine new-format vs old-format, decipher/store info in variables, print info for the user).
 		# Now that REVCODE is readable in binary, create hexadecimal substrings from it.
-		#       New-style revision codes: NOQuuuWuFMMMCCCCPPPPTTTTTTTTRRRR
+		#       New-style revision codes: NOQuuuWwFMMMCCCCPPPPTTTTTTTTRRRR
 		#         - https://www.raspberrypi.com/documentation/computers/raspberry-pi.html
 		#         - https://github.com/raspberrypi/documentation/blob/develop/documentation/asciidoc/computers/raspberry-pi/revision-codes.adoc
 		#       If a is constant, b=${a:12:5} does substring extraction where 12 is the offset (zero-based) and 5 is the length.
@@ -33,8 +33,8 @@ function run_rpifinder()
 		local O=${REVCODE:1:1}                                           # OTP Program (0: OTP programming allowed, 1: OTP programming disallowed)
 		local Q=${REVCODE:2:1}                                           # OTP Read (0: OTP reading allowed, 1: OTP reading disallowed)
 		#local uuu=$(echo "obase=16; ibase=2; ${REVCODE:3:3}" | bc)      # Unused bits
-		local W=${REVCODE:6:1}                                           # Warranty bit (0: Warranty is intact, 1: Warranty has been voided by overclocking)
-		#local u=${REVCODE:7:1}                                          # Unused bit
+		local W=${REVCODE:6:1}                                           # Warranty bit [starting with RPi2/Zero] (0: Warranty is intact, 1: Warranty has been voided by overclocking)
+		local w=${REVCODE:7:1}                                           # Unused bit [starting with RPi2/Zero] / warranty bit [prior to RPi2/Zero]
 		local F=${REVCODE:8:1}                                           # New flag (1: new-style revision, 0: old-style revision)
 		local MMM=$(echo "obase=16; ibase=2; ${REVCODE:9:3}" | bc)       # Memory size (0: 256MB, 1: 512MB, 2: 1GB, 3: 2GB, 4: 4GB, 5: 8GB)
 		local CCCC=$(echo "obase=16; ibase=2; ${REVCODE:12:4}" | bc)     # Manufacturer (0: Sony UK, 1: Egoman, 2: Embest, 3: Sony Japan, 4: Embest, 5: Stadium)
@@ -56,105 +56,105 @@ function run_rpifinder()
 		PI_REVISION=""
 		
 		if [ "$F" = "0" ]; then
-			# Old-style revision codes:
+			# Old-style revision codes [Leading 0x100 = warranty is void from overclocking (the "w" binary bit is set)]:
 			case $HEXREVISION in
-				"0002")
+				"0002" | "1000002")
 					PI_TYPE="1B"
 					PI_REVISION="1.0"
 					PI_RAM="256MB"
 					PI_MANUFACTURER="Egoman"
 					;;
-				"0003")
+				"0003" | "1000003")
 					PI_TYPE="1B"
 					PI_REVISION="1.0"
 					PI_RAM="256MB"
 					PI_MANUFACTURER="Egoman"
 					;;
-				"0004")
+				"0004" | "1000004")
 					PI_TYPE="1B"
 					PI_REVISION="2.0"
 					PI_RAM="256MB"
 					PI_MANUFACTURER="Sony UK"
 					;;
-				"0005")
+				"0005" | "1000005")
 					PI_TYPE="1B"
 					PI_REVISION="2.0"
 					PI_RAM="256MB"
 					PI_MANUFACTURER="Qisda"
 					;;
-				"0006")
+				"0006" | "1000006")
 					PI_TYPE="1B"
 					PI_REVISION="2.0"
 					PI_RAM="256MB"
 					PI_MANUFACTURER="Egoman"
 					;;
-				"0007")
+				"0007" | "1000007")
 					PI_TYPE="1A"
 					PI_REVISION="2.0"
 					PI_RAM="256MB"
 					PI_MANUFACTURER="Egoman"
 					;;
-				"0008")
+				"0008" | "1000008")
 					PI_TYPE="1A"
 					PI_REVISION="2.0"
 					PI_RAM="256MB"
 					PI_MANUFACTURER="Sony UK"
 					;;
-				"0009")
+				"0009" | "1000009")
 					PI_TYPE="1A"
 					PI_REVISION="2.0"
 					PI_RAM="256MB"
 					PI_MANUFACTURER="Qisda"
 					;;
-				"000d")
+				"000d" | "100000d")
 					PI_TYPE="1B"
 					PI_REVISION="2.0"
 					PI_RAM="512MB"
 					PI_MANUFACTURER="Egoman"
 					;;
-				"000e")
+				"000e" | "100000e")
 					PI_TYPE="1B"
 					PI_REVISION="2.0"
 					PI_RAM="512MB"
 					PI_MANUFACTURER="Sony UK"
 					;;
-				"000f")
+				"000f" | "100000f")
 					PI_TYPE="1B"
 					PI_REVISION="2.0"
 					PI_RAM="512MB"
 					PI_MANUFACTURER="Egoman"
 					;;
-				"0010")
+				"0010" | "1000010")
 					PI_TYPE="1B+"
 					PI_REVISION="1.2"
 					PI_RAM="512MB"
 					PI_MANUFACTURER="Sony UK"
 					;;
-				"0011")
+				"0011" | "1000011")
 					PI_TYPE="CM1"
 					PI_REVISION="1.0"
 					PI_RAM="512MB"
 					PI_MANUFACTURER="Sony UK"
 					;;
-				"0012")
+				"0012" | "1000012")
 					PI_TYPE="1A+"
 					PI_REVISION="1.1"
 					PI_RAM="256MB"
 					PI_MANUFACTURER="Sony UK"
 					;;
-				"0013")
+				"0013" | "1000013")
 					PI_TYPE="1B+"
 					PI_REVISION="1.2"
 					PI_RAM="512MB"
 					PI_MANUFACTURER="Embest"
 					;;
-				"0014")
+				"0014" | "1000014")
 					PI_TYPE="CM1"
 					PI_REVISION="1.0"
 					PI_RAM="512MB"
 					PI_MANUFACTURER="Embest"
 					;;
-				"0015")
+				"0015" | "1000015")
 					PI_TYPE="1A+"
 					PI_REVISION="1.1"
 					PI_RAM="256MB/512MB"
@@ -168,7 +168,22 @@ function run_rpifinder()
 					run_giveup
 					;;
 			esac
-			echo -e "Raspberry Pi Model ${PI_TYPE} Rev ${PI_REVISION} with ${PI_RAM} of RAM. Manufactured by ${PI_MANUFACTURER}."
+			
+			case $w in
+				"0")
+					PI_WARRANTY="intact"
+					;;
+				"1")
+					PI_WARRANTY="voided by overclocking"
+					;;
+				*)
+					PI_WARRANTY="UNKNOWN"
+					run_giveup
+					;;
+			esac
+			
+			echo -e "\nRaspberry Pi Model ${PI_TYPE} Rev ${PI_REVISION} with ${PI_RAM} of RAM. Manufactured by ${PI_MANUFACTURER}."
+			echo "(Warranty ${PI_WARRANTY})"
 			
 		elif [ "$F" = "1" ]; then
 			# New-style revision codes:
@@ -356,6 +371,7 @@ function run_rpifinder()
 					run_giveup
 					;;
 			esac
+			
 			PI_REVISION="1.${RRRR}"
 			
 			echo -e "\nRaspberry Pi Model ${PI_TYPE} Rev ${PI_REVISION} ${PI_PROCESSOR} with ${PI_RAM} of RAM. Manufactured by ${PI_MANUFACTURER}."
