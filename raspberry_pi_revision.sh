@@ -165,6 +165,7 @@ function run_rpifinder()
 					PI_REVISION="UNKNOWN"
 					PI_RAM="UNKNOWN"
 					PI_MANUFACTURER="UNKNOWN"
+					echo "ERROR: Unable to parse Raspberry Pi old-style revision code."
 					run_giveup
 					;;
 			esac
@@ -178,6 +179,7 @@ function run_rpifinder()
 					;;
 				*)
 					PI_WARRANTY="UNKNOWN"
+					echo "ERROR: Unable to parse Raspberry Pi old-style overclock/warranty code."
 					run_giveup
 					;;
 			esac
@@ -196,6 +198,7 @@ function run_rpifinder()
 					;;
 				*)
 					PI_OVERVOLTAGE="UNKNOWN"
+					echo "ERROR: Unable to parse Raspberry Pi overvoltage allowance bit."
 					run_giveup
 					;;
 			esac
@@ -209,6 +212,7 @@ function run_rpifinder()
 					;;
 				*)
 					PI_OTPPROGRAM="UNKNOWN"
+					echo "ERROR: Unable to parse Raspberry Pi OTP programming allowance bit."
 					run_giveup
 					;;
 			esac
@@ -222,6 +226,7 @@ function run_rpifinder()
 					;;
 				*)
 					PI_OTPREAD="UNKNOWN"
+					echo "ERROR: Unable to parse Raspberry Pi OTP reading allowance bit."
 					run_giveup
 					;;
 			esac
@@ -235,6 +240,7 @@ function run_rpifinder()
 					;;
 				*)
 					PI_WARRANTY="UNKNOWN"
+					echo "ERROR: Unable to parse Raspberry Pi new-style overclock/warranty code."
 					run_giveup
 					;;
 			esac
@@ -260,6 +266,7 @@ function run_rpifinder()
 					;;
 				*)
 					PI_RAM="UNKNOWN"
+					echo "ERROR: Unable to parse Raspberry Pi RAM type code."
 					run_giveup
 					;;
 			esac
@@ -285,6 +292,7 @@ function run_rpifinder()
 					;;
 				*)
 					PI_MANUFACTURER="UNKNOWN"
+					echo "ERROR: Unable to parse Raspberry Pi manufacturer code."
 					run_giveup
 					;;
 			esac
@@ -304,6 +312,7 @@ function run_rpifinder()
 					;;
 				*)
 					PI_PROCESSOR="UNKNOWN"
+					echo "ERROR: Unable to parse Raspberry Pi processor type code."
 					run_giveup
 					;;
 			esac
@@ -368,6 +377,7 @@ function run_rpifinder()
 					;;
 				*)
 					PI_TYPE="UNKNOWN"
+					echo "ERROR: Unable to parse Raspberry Pi model code."
 					run_giveup
 					;;
 			esac
