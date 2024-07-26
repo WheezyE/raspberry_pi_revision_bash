@@ -38,10 +38,10 @@ function run_rpifinder()
 		local F=${REVCODE:8:1}                                           # New flag (1: new-style revision, 0: old-style revision)
 		local MMM=$(echo "obase=16; ibase=2; ${REVCODE:9:3}" | bc)       # Memory size (0: 256MB, 1: 512MB, 2: 1GB, 3: 2GB, 4: 4GB, 5: 8GB)
 		local CCCC=$(echo "obase=16; ibase=2; ${REVCODE:12:4}" | bc)     # Manufacturer (0: Sony UK, 1: Egoman, 2: Embest, 3: Sony Japan, 4: Embest, 5: Stadium)
-		local PPPP=$(echo "obase=16; ibase=2; ${REVCODE:16:4}" | bc)     # Processor (0: BCM2835, 1: BCM2836, 2: BCM2837, 3: BCM2711)
+		local PPPP=$(echo "obase=16; ibase=2; ${REVCODE:16:4}" | bc)     # Processor (0: BCM2835, 1: BCM2836, 2: BCM2837, 3: BCM2711, 4: BCM2712)
 		local TTTTTTTT=$(echo "obase=16; ibase=2; ${REVCODE:20:8}" | bc) # Type (0: A, 1: B, 2: A+, 3: B+, 4: 2B, 5: Alpha (early prototype), 6: CM1, 8: 3B, 
-		                                                                 #       9: Zero, A: CM3, C: Zero W, D: 3B+, E: 3A+, F: Internal use only, 10: CM3+, 
-		                                                                 #       11: 4B, 12: Zero 2 W, 13: 400, 14: CM4)
+		                                                                 #       9: Zero, a: CM3, c: Zero W, d: 3B+, e: 3A+, f: Internal use only, 10: CM3+, 
+		                                                                 #       11: 4B, 12: Zero 2 W, 13: 400, 14: CM4, 15: CM4S, 16: Internal use only, 17: 5)
 		local RRRR=$(echo "obase=16; ibase=2; ${REVCODE:28:4}" | bc)     # Revision (0, 1, 2, etc.)
 		
 		# Zero-out our variables in case this function runs twice (this step might be redundant)
@@ -310,6 +310,9 @@ function run_rpifinder()
 				"3")
 					PI_PROCESSOR="BCM2711"
 					;;
+     				"4")
+	 				PI_PROCESSOR="BCM2712"
+      					;;
 				*)
 					PI_PROCESSOR="UNKNOWN"
 					echo "ERROR: Unable to parse Raspberry Pi processor type code."
@@ -345,19 +348,19 @@ function run_rpifinder()
 				"9")
 					PI_TYPE="Zero"
 					;;
-				"A")
+				"a")
 					PI_TYPE="CM3"
 					;;
-				"C")
+				"c")
 					PI_TYPE="Zero W"
 					;;
-				"D")
+				"d")
 					PI_TYPE="3B+"
 					;;
-				"E")
+				"e")
 					PI_TYPE="3A+"
 					;;
-				"F")
+				"f")
 					PI_TYPE="Internal use only"
 					;;
 				"10")
@@ -374,6 +377,15 @@ function run_rpifinder()
 					;;
 				"14")
 					PI_TYPE="CM4"
+					;;
+				"15")
+					PI_TYPE="CM4S"
+					;;
+				"16")
+					PI_TYPE="Internal use only"
+					;;
+				"17")
+					PI_TYPE="5"
 					;;
 				*)
 					PI_TYPE="UNKNOWN"
@@ -392,29 +404,31 @@ function run_rpifinder()
 		fi
 		
 	# Categorize the Pi into a series (based on the $PI_TYPE variable)
-		if [ "$PI_TYPE" = "4B" ] || [ "$PI_TYPE" = "400" ] || [ "$PI_TYPE" = "CM4" ]; then
-			PI_SERIES=Pi4
+ 		if [ "$PI_TYPE" = "5" ]; then
+   			SBC_SERIES=Pi5
+		elif [ "$PI_TYPE" = "4B" ] || [ "$PI_TYPE" = "400" ] || [ "$PI_TYPE" = "CM4" ]; then
+			SBC_SERIES=Pi4
 		elif [ "$PI_TYPE" = "3A+" ] || [  "$PI_TYPE" = "3B+" ] || [  "$PI_TYPE" = "CM3+" ]; then
-			PI_SERIES=Pi3+
+			SBC_SERIES=Pi3+
 		elif [ "$PI_TYPE" = "Zero 2 W" ]; then
-			PI_SERIES=PiZ2
+			SBC_SERIES=PiZ2
 		elif [ "$PI_TYPE" = "3B" ] || [  "$PI_TYPE" = "CM3" ]; then
-			PI_SERIES=Pi3
+			SBC_SERIES=Pi3
 		elif [ "$PI_TYPE" = "Zero" ] || [ "$PI_TYPE" = "Zero W" ]; then
-			PI_SERIES=PiZ1
+			SBC_SERIES=PiZ1
 		elif [ "$PI_TYPE" = "2B" ]; then
-			PI_SERIES=Pi2
+			SBC_SERIES=Pi2
 		elif [ "$PI_TYPE" = "1A+" ] || [ "$PI_TYPE" = "1B+" ]; then
-			PI_SERIES=Pi1+
+			SBC_SERIES=Pi1+
 		elif [ "$PI_TYPE" = "1A" ] || [ "$PI_TYPE" = "1B" ] || [ "$PI_TYPE" = "CM1" ]; then
-			PI_SERIES=Pi1
+			SBC_SERIES=Pi1
 		elif [ "$PI_TYPE" = "Internal use only" ] || [ "$PI_TYPE" = "Alpha (early prototype)" ]; then
-			PI_SERIES=X
+			SBC_SERIES=X
 		else
 			echo "Error: Could not identify Pi series.">&2
 			run_giveup
 		fi
-		echo -e "\nThis Pi is part of the ${PI_SERIES} series."
+		echo -e "\nThis Pi is part of the ${SBC_SERIES} series."
 }
 
 function run_detect_arch()  # Finds what kind of processor we're running (aarch64, armv8l, armv7l, x86_64, x86, etc)
